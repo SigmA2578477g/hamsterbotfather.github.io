@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тапающий хомяк - Игра</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .auth-section {
+            text-align: center;
+            margin: 30px 0;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.15);
+            border-radius: 15px;
+        }
+        
+        .game-section {
+            display: none;
+        }
+        
+        .stats-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            background-color: rgba(255, 255, 255, 0.15);
+            padding: 15px;
+            border-radius: 15px;
+        }
+        
+        .stat {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+        
+        .hamster-container {
+            text-align: center;
+            margin: 30px 0;
+        }
+        
+        .hamster {
+            width: 200px;
+            height: 200px;
+            background-color: #FFC107;
+            border-radius: 50%;
+            margin: 0 auto;
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.1s;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        
+        .hamster:active {
+            transform: scale(0.95);
+        }
+        
+        .hamster-face {
+            position: relative;
+            width: 80%;
+            height: 70%;
+        }
+        
+        .hamster-eye {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: #333;
+            border-radius: 50%;
+            top: 30%;
+        }
+        
+        .hamster-eye.left {
+            left: 20%;
+        }
+        
+        .hamster-eye.right {
+            right: 20%;
+        }
+        
+        .hamster-nose {
+            position: absolute;
+            width: 15px;
+            height: 10px;
+            background-color: #FF5722;
+            border-radius: 50%;
+            bottom: 40%;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .hamster-ear {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background-color: #FFA000;
+            border-radius: 50%;
+            top: -10px;
+        }
+        
+        .hamster-ear.left {
+            left: 15px;
+        }
+        
+        .hamster-ear.right {
+            right: 15px;
+        }
+        
+        .upgrades-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .upgrade {
+            background-color: rgba(255, 255, 255, 0.15);
+            padding: 15px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .upgrade:hover {
+            background-color: rgba(255, 255, 255, 0.25);
+            transform: translateY(-5px);
+        }
+        
+        .upgrade-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .upgrade-description {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+        
+        .upgrade-cost {
+            color: #FFC107;
+            font-weight: bold;
+        }
+        
+        .upgrade-level {
+            margin-top: 5px;
+            font-size: 0.9rem;
+        }
+        
+        .user-info {
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            background-color: rgba(255, 255, 255, 0.15);
+            border-radius: 15px;
+        }
+        
+        button {
+            background-color: #FFC107;
+            color: #333;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+        
+        button:hover {
+            background-color: #FFD54F;
+            transform: translateY(-3px);
+        }
+        
+        .tap-effect {
+            position: absolute;
+            pointer-events: none;
+            color: #FFC107;
+            font-weight: bold;
+            font-size: 1.2rem;
+            animation: floatUp 1s ease-out forwards;
+        }
+        
+        @keyframes floatUp {
+            0% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .stats-container {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .upgrades-container {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Тапающий хомяк</h1>
+            <p class="subtitle">Тапай хомяка, зарабатывай очки и улучшай его!</p>
+        </header>
+        
+        <div class="auth-section" id="authSection">
+            <p>Для начала игры войдите через Telegram</p>
+            <script async src="https://telegram.org/js/telegram-widget.js?22" 
+                    data-telegram-login="CompBotNowBot" 
+                    data-size="medium" 
+                    data-onauth="onTelegramAuth(user)" 
+                    data-request-access="write"></script>
+        </div>
+        
+        <div class="game-section" id="gameSection">
+            <div class="stats-container">
+                <div class="stat">
+                    <div class="stat-label">Очки</div>
+                    <div class="stat-value" id="points">0</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">Очков за клик</div>
+                    <div class="stat-value" id="pointsPerClick">1</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">Авто-клики/сек</div>
+                    <div class="stat-value" id="autoClicks">0</div>
+                </div>
+            </div>
+            
+            <div class="hamster-container">
+                <div class="hamster" id="hamster">
+                    <div class="hamster-face">
+                        <div class="hamster-ear left"></div>
+                        <div class="hamster-ear right"></div>
+                        <div class="hamster-eye left"></div>
+                        <div class="hamster-eye right"></div>
+                        <div class="hamster-nose"></div>
+                    </div>
+                </div>
+                <p>Тапай хомяка для получения очков!</p>
+            </div>
+            
+            <h2>Улучшения</h2>
+            <div class="upgrades-container" id="upgradesContainer">
+                <!-- Улучшения будут добавлены через JavaScript -->
+            </div>
+            
+            <div class="user-info" id="userInfo">
+                <!-- Информация о пользователе будет добавлена через JavaScript -->
+            </div>
+            
+            <div style="text-align: center; margin-top: 20px;">
+                <button id="saveButton">Сохранить прогресс</button>
+                <button id="resetButton">Сбросить прогресс</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Игровые переменные
+        let gameState = {
+            points: 0,
+            pointsPerClick: 1,
+            autoClicks: 0,
+            upgrades: {
+                clickPower: { level: 0, cost: 10, multiplier: 1 },
+                autoClicker: { level: 0, cost: 50, multiplier: 1 },
+                goldenHamster: { level: 0, cost: 200, multiplier: 2 },
+                hamsterWheel: { level: 0, cost: 500, multiplier: 5 }
+            }
+        };
+        
+        let userData = null;
+        
+        // Функция для загрузки состояния игры из localStorage
+        function loadGameState() {
+            const savedState = localStorage.getItem('hamsterGameState');
+            if (savedState) {
+                gameState = JSON.parse(savedState);
+            }
+        }
+        
+        // Функция для сохранения состояния игры в localStorage
+        function saveGameState() {
+            localStorage.setItem('hamsterGameState', JSON.stringify(gameState));
+            alert('Прогресс сохранен!');
+        }
+        
+        // Функция для сброса состояния игры
+        function resetGameState() {
+            if (confirm('Вы уверены, что хотите сбросить весь прогресс?')) {
+                gameState = {
+                    points: 0,
+                    pointsPerClick: 1,
+                    autoClicks: 0,
+                    upgrades: {
+                        clickPower: { level: 0, cost: 10, multiplier: 1 },
+                        autoClicker: { level: 0, cost: 50, multiplier: 1 },
+                        goldenHamster: { level: 0, cost: 200, multiplier: 2 },
+                        hamsterWheel: { level: 0, cost: 500, multiplier: 5 }
+                    }
+                };
+                updateGameDisplay();
+                saveGameState();
+            }
+        }
+        
+        // Функция для обновления отображения игры
+        function updateGameDisplay() {
+            document.getElementById('points').textContent = Math.floor(gameState.points);
+            document.getElementById('pointsPerClick').textContent = gameState.pointsPerClick;
+            document.getElementById('autoClicks').textContent = gameState.autoClicks;
+            
+            // Обновление информации о пользователе
+            if (userData) {
+                document.getElementById('userInfo').innerHTML = `
+                    <p>Играет: ${userData.first_name} ${userData.last_name || ''} (${userData.username ? '@' + userData.username : 'ID: ' + userData.id})</p>
+                `;
+            }
+        }
+        
+        // Функция для создания улучшений
+        function createUpgrades() {
+            const upgradesContainer = document.getElementById('upgradesContainer');
+            upgradesContainer.innerHTML = '';
+            
+            const upgrades = [
+                {
+                    id: 'clickPower',
+                    title: 'Сила тапа',
+                    description: 'Увеличивает количество очков за каждый тап',
+                    baseCost: 10
+                },
+                {
+                    id: 'autoClicker',
+                    title: 'Авто-тапер',
+                    description: 'Автоматически тапает за вас',
+                    baseCost: 50
+                },
+                {
+                    id: 'goldenHamster',
+                    title: 'Золотой хомяк',
+                    description: 'Удваивает эффективность всех улучшений',
+                    baseCost: 200
+                },
+                {
+                    id: 'hamsterWheel',
+                    title: 'Хомячье колесо',
+                    description: 'Пятикратно увеличивает авто-тапы',
+                    baseCost: 500
+                }
+            ];
+            
+            upgrades.forEach(upgrade => {
+                const upgradeElement = document.createElement('div');
+                upgradeElement.className = 'upgrade';
+                upgradeElement.innerHTML = `
+                    <div class="upgrade-title">${upgrade.title}</div>
+                    <div class="upgrade-description">${upgrade.description}</div>
+                    <div class="upgrade-cost">Стоимость: ${Math.floor(gameState.upgrades[upgrade.id].cost)} очков</div>
+                    <div class="upgrade-level">Уровень: ${gameState.upgrades[upgrade.id].level}</div>
+                `;
+                
+                upgradeElement.addEventListener('click', () => purchaseUpgrade(upgrade.id));
+                upgradesContainer.appendChild(upgradeElement);
+            });
+        }
+        
+        // Функция для покупки улучшения
+        function purchaseUpgrade(upgradeId) {
+            const upgrade = gameState.upgrades[upgradeId];
+            
+            if (gameState.points >= upgrade.cost) {
+                gameState.points -= upgrade.cost;
+                
+                // Применяем улучшение
+                switch (upgradeId) {
+                    case 'clickPower':
+                        gameState.pointsPerClick += upgrade.multiplier;
+                        break;
+                    case 'autoClicker':
+                        gameState.autoClicks += upgrade.multiplier;
+                        break;
+                    case 'goldenHamster':
+                        // Удваиваем эффективность всех улучшений
+                        Object.keys(gameState.upgrades).forEach(key => {
+                            gameState.upgrades[key].multiplier *= 2;
+                        });
+                        break;
+                    case 'hamsterWheel':
+                        gameState.autoClicks += 5 * upgrade.multiplier;
+                        break;
+                }
+                
+                upgrade.level++;
+                upgrade.cost = Math.floor(upgrade.cost * 1.5);
+                
+                updateGameDisplay();
+                createUpgrades();
+            } else {
+                alert('Недостаточно очков для покупки этого улучшения!');
+            }
+        }
+        
+        // Функция для обработки тапа по хомяку
+        function handleHamsterClick(event) {
+            // Добавляем очки
+            gameState.points += gameState.pointsPerClick;
+            
+            // Создаем эффект плавающего текста
+            const tapEffect = document.createElement('div');
+            tapEffect.className = 'tap-effect';
+            tapEffect.textContent = `+${gameState.pointsPerClick}`;
+            tapEffect.style.left = `${event.clientX - 20}px`;
+            tapEffect.style.top = `${event.clientY - 20}px`;
+            document.body.appendChild(tapEffect);
+            
+            // Удаляем эффект после анимации
+            setTimeout(() => {
+                document.body.removeChild(tapEffect);
+            }, 1000);
+            
+            updateGameDisplay();
+        }
+        
+        // Функция для авто-кликов
+        function autoClick() {
+            if (gameState.autoClicks > 0) {
+                gameState.points += gameState.autoClicks;
+                updateGameDisplay();
+            }
+        }
+        
+        // Функция авторизации Telegram
+        function onTelegramAuth(user) {
+            userData = user;
+            document.getElementById('authSection').style.display = 'none';
+            document.getElementById('gameSection').style.display = 'block';
+            
+            // Загружаем состояние игры
+            loadGameState();
+            
+            // Создаем улучшения
+            createUpgrades();
+            
+            // Обновляем отображение игры
+            updateGameDisplay();
+            
+            // Добавляем обработчик клика на хомяка
+            document.getElementById('hamster').addEventListener('click', handleHamsterClick);
+            
+            // Настраиваем авто-клики
+            setInterval(autoClick, 1000);
+            
+            // Настраиваем кнопки
+            document.getElementById('saveButton').addEventListener('click', saveGameState);
+            document.getElementById('resetButton').addEventListener('click', resetGameState);
+        }
+        
+        // Инициализация при загрузке страницы
+        window.addEventListener('DOMContentLoaded', () => {
+            // Проверяем, есть ли сохраненные данные пользователя
+            const savedUserData = localStorage.getItem('hamsterGameUser');
+            if (savedUserData) {
+                userData = JSON.parse(savedUserData);
+                onTelegramAuth(userData);
+            }
+        });
+    </script>
+</body>
+</html>
